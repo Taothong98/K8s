@@ -1,0 +1,188 @@
+
+-------------------------------- install containerd ------------------------------------- 
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+
+
+----------------------------- เปลี่ยน Runtime  containerd ------------------------------------------------------------------------
+sudo docker info | grep Runtime
+
+sudo systemctl stop docker docker.socket
+sudo systemctl disable docker docker.socket
+systemctl status containerd
+
+
+containerd --version
+
+sudo cat /etc/containerd/config.toml | grep cri
+
+sudo nano /etc/containerd/config.toml
+แก้ปิด------disabled_plugins = ["cri"]
+
+crictl info | grep "runtimeType"
+
+ls -lah /run/containerd/containerd.sock
+
+
+sudo systemctl restart containerd
+sudo systemctl restart kubelet
+
+
+
+
+
+sudo usermod -aG docker ubuntu
+sudo usermod -aG containerd ubuntu
+----------------------------------- install K8s ----------------------------------------
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+
+sudo install -o ubuntu -g ubuntu -m 0755 kubectl /usr/local/bin/kubectl
+
+chmod +x kubectl
+mkdir -p ~/.local/bin
+mv ./kubectl ~/.local/bin/kubectl
+# and then append (or prepend) ~/.local/bin to $PATH
+
+kubectl version --client --output=yaml
+
+
+
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo systemctl enable --now kubelet
+
+
+sudo apt-mark hold kubeadm kubelet kubectl
+
+kubectl version
+kubelet version
+kubeadm version
+kubectl version --client
+
+sudo systemctl start kubelet
+sudo systemctl enable kubelet
+sudo systemctl status kubelet
+
+
+sudo kubectl get nodes
+
+
+------------------------ swapoff -------------------------------------
+
+sudo swapoff -a
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+------------------------ kernal --------------------------------------
+
+sudo nano /etc/modules-load.d/containerd.conf
+
+overlay
+br_netfilter
+
+sudo modprobe overlay
+sudo modprobe br_netfilter
+
+sudo nano /etc/sysctl.d/kubernetes.conf
+
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+
+sudo sysctl --system
+
+---------------------------------------------------------------------------------------
+
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+
+---------------------------------------------------------------------
+ls -l /etc/kubernetes/admin.conf
+
+sudo chown ubuntu:ubuntu /etc/kubernetes/admin.conf
+sudo chmod 777 /etc/kubernetes/admin.conf
+
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+
+
+echo 'export KUBECONFIG=/etc/kubernetes/admin.conf' >> ~/.bashrc
+source ~/.bashrc
+sudo cat /etc/kubernetes/admin.conf
+----------------------------------------------->>>>>>
+
+sudo mkdir -p /root/.kube
+sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
+sudo chown root:root /root/.kube/config
+
+echo $KUBECONFIG
+kubectl config view
+sudo kubectl config view
+
+
+---------------------------------------------------------------------
+
+
+sudo ls -l /root/.kube/config/admin.conf
+sudo cat /root/.kube/config/admin.conf
+
+
+sudo systemctl restart docker
+sudo systemctl restart kubelet
+sudo systemctl status kubelet
+
+
+sudo kubectl get nodes
+sudo kubectl get pods -n kube-system
+
+sudo kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+sudo kubectl delete -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+sudo kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+sudo kubectl delete -f https://docs.projectcalico.org/manifests/calico.yaml
+
+
+
+
+------------------------------------------------------------------------------------------------------------
+
+
+sudo kubeadm token create --print-join-command
+
+
+sudo kubeadm join 192.168.1.81:6443 --token lss271.gjgzla668lm1bcxs --discovery-token-ca-cert-hash sha256:ba886f12b372984e34c5627495777082f719919de20cfeb33dfafed4aa865be6        
+
+
+
+sudo kubectl logs -n kube-system kube-apiserver-master
+sudo kubectl logs -n kube-system etcd-master
+
+sudo kubeadm reset
+sudo systemctl restart kubelet
+
+
+
+
+kubectl get pods -n kube-system
+
+
+
+------------------------ reset worker -----------------------------------
+sudo kubeadm reset
+
+sudo rm -rf /etc/kubernetes
+sudo rm -rf ~/.kube
+
+ls /etc/kubernetes
+
+sudo rm -rf /etc/kubernetes/*
+sudo rm -rf /etc/cni/net.d/

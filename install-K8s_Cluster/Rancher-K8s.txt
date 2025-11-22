@@ -1,0 +1,69 @@
+-------------------------------- install docker -------------------------------------
+sudo apt install net-tools
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+
+
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+
+sudo apt-get update && sudo apt-get upgrade -y
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+
+
+
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo docker --version
+
+sudo systemctl status docker
+
+
+--------------------------------------------------
+
+sudo docker run -d --restart=unless-stopped -p 80:80 -p 443:443 --name rancher --privileged rancher/rancher:latest
+
+docker ps -
+
+sudo docker logs rancher 2>&1 | grep "Bootstrap Password:"      
+docker logs rancher 2>&1 | Select-String "Bootstrap Password:"
+
+aP@ssw0rdx12
+
+
+sudo docker stop rancher
+sudo docker rm rancher
+
+------------------------------- desktop
+
+$env:KUBECONFIG="C:\Users\taoth\.kube\local.yaml"
+$env:KUBECONFIG="C:\Users\taoth\.kube\mhomek8s.yaml"
+
+
+
+kubectl config get-contexts
+kubectl config current-context
+
+kubectl get nodes
+kubectl get all --all-namespaces       
+kubectl get pods --all-namespaces
+
+--------------------- Master--------------
+
+sudo docker ps --format "table {{.ID}}\t{{.Image}}\t{{.Names}}"
+
+sudo docker exec -it kube-apiserver cat /etc/kubernetes/admin.conf
+
+sudo docker exec -it kube-apiserver find / -name "kube_config_cluster.yml" 2>/dev/null
+sudo docker exec -it kube-apiserver find / -name "admin.conf" 2>/dev/null
+

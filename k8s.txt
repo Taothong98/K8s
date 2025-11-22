@@ -1,0 +1,55 @@
+code . C:\Users\taoth\.kube\config
+
+kubectl version
+kubectl config view
+kubectl config get-contexts
+kubectl config current-context         ดูว่าปัจจุบันอยู่ใน cluster ไหน   
+kubectl config use-context docker-desktop
+kubectl config use-context kind-my-kind
+
+
+
+kubectl cluster-info                                      ดูข้อมูล cluster
+kubectl get nodes                      ดู Node ใน cluster
+kubectl get all --all-namespaces       ดูทุกอย่าง
+kubectl get pods --all-namespaces             ดู Pod ทั้งมด
+kubectl get namespaces                                   ---or---  
+kubectl get ns                                                 ดู namespaces
+
+kubectl create namespace demok8s
+kubectl delete namespace demok8s
+
+
+kubectl get pods --namespace demok8s
+kubectl get po -n demok8s
+
+
+kubectl get pods -A | grep -i capi
+
+
+kubectl get pods -n cattle-provisioning-capi-system
+
+
+
+
+https://github.com/helm/helm/releases/tag/v3.17.0
+
+kubectl get nodes
+helm list -A
+
+$env:KUBECONFIG="C:\Users\taoth\.kube\local.yaml"
+$env:KUBECONFIG="C:\Users\taoth\.kube\testserver.yaml"
+
+
+kubectl config get-contexts
+kubectl config current-context
+
+kubectl config use-context homek8s-rke1-master
+
+helm repo update
+
+
+sudo docker run -d --restart=unless-stopped --network host --name rancher --privileged taothong/t-rancher:tagname
+sudo docker run -d --restart=unless-stopped -p 80:80 -p 443:443 --name rancher --privileged taothong/t-rancher:tagname
+
+kubectl config delete-context docker-desktop

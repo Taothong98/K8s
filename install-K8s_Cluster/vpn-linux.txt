@@ -1,0 +1,46 @@
+# ssh debian@192.168.1.60
+# ssh debian@192.168.1.64
+
+
+# sudo nano /etc/network/interfaces
+
+# source /etc/network/interfaces.d/*
+
+# auto lo
+# iface lo inet loopback
+# allow-hotplug ens18
+# iface ens18 inet dhcp
+# iface ens18 inet6 auto
+
+# auto ens19
+# iface ens19 inet static
+#     address 192.168.88.100
+#     netmask 255.255.255.0
+
+
+
+# docker --version
+
+# --------------------------------------------------------------------
+# sudo apt update
+# sudo apt install wireguard
+# sudo apt install resolvconf
+# wg --version
+
+
+# sudo mv client.conf /etc/wireguard/wg0.conf
+# sudo nano /etc/wireguard/wg0.conf
+
+
+# sudo wg-quick up wg2
+# wg
+
+# ping 10.0.0.1
+# curl -I http://10.0.0.2
+
+
+# sudo systemctl enable wg-quick@wg0
+# sudo systemctl status wg-quick@wg0
+# -----------------------------------------------------------------
+
+curl -fLk https://10.0.0.2/system-agent-install.sh | sudo  sh -s - --server https://10.0.0.2 --label 'cattle.io/os=linux' --token 4jk5bm7w7h7lpc76m7dnbsgrnw26zsgdh7q7jhnqv9d4md5k979fgz --ca-checksum f1f008cb85c1a4aefbd2a9c9d9fa1ff583121c19c70e0e18c21a289b3ee309eb --etcd --controlplane    
